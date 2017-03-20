@@ -1,0 +1,16 @@
+{
+  "name": "Zeroconf Browser",
+  "description": "ZeroConf Browser",
+  "manifest_version": 2,
+  "version": "1.0.2",
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },
+  "sockets": {
+     "udp": { "bind": "*", "send": "*" }
+  },
+  "permissions": [ "system.network" ],
+  "icons": { "128": "img/icon-128.png", "16": "img/icon-16.png" }
+}

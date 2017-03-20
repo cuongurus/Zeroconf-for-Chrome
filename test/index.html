@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title>Zeroconf Browser Chrome</title>
+        <link rel="stylesheet" href="main.css">
+        <script src="src/bundle.js"></script>
+        <script src="src/mdns.js"></script>
+        <script src="main.js"></script>
+        <script src="service-types.js"></script>
+    </head>
+    <body>
+        <header>
+            ServiceType (Empty for browse all): </br>
+            <input type="text" id="ServiceType" placeholder="Example: _http._tcp">
+            <button id="browse">Browse</button>
+            
+        </header>
+        <div id="main">
+            <ul id="results"></ul>
+        </div>
+    </body>
+</html>

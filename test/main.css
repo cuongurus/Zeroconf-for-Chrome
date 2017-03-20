@@ -1,0 +1,111 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: rgba(102, 102, 119, 0.85);
+  background: white;
+  width: 100%;
+  -webkit-app-region: drag;
+}
+
+div#main {
+  position: absolute;
+  top: 44px;
+  bottom: 0;
+  width: 100%;
+  overflow-y: scroll;
+  color: white;
+  color: black;
+  -webkit-app-region: no-drag;
+}
+
+ul#results {
+  list-style: none;
+  font-family: Arial, Helvetica, Sans-Serif;
+  font-size: 12px;
+  line-height: 21px;
+  padding: 0em 0.5em;
+  padding-right: 2em;
+  margin: 0;
+}
+
+ul.working#results {
+  background: url(img/working.gif) no-repeat center;
+  min-height: 80px;
+}
+
+ul strong.warning {
+  color: #D14836;
+  text-align: center;
+  display: block;
+  padding: 0.5em;
+}
+
+ul#results > ul {
+  list-style: square;
+}
+
+ul#results > li {
+  font-weight: bold;
+  margin-left: 1em;
+  margin-top: 0.5em;
+}
+
+ul.loading {
+  background: red;
+}
+
+ul#results li em {
+  font-style: normal;
+  font-weight: normal;
+  opacity: 0.33;
+}
+
+ul#results li em::before {
+  content: "\2014 \a0";
+  padding: 0 4px;
+}
+
+header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0px;
+  height: 50px;
+  border-bottom: 2px solid rgba(0, 0, 255, 0.2);
+  box-shadow: 0 0.125em 0.5em rgba(0, 0, 0, 0.1);
+  padding: 0 0.25em;
+  margin: 0;
+  z-index: 100;
+  font-family: Arial, Helvetica, Sans-Serif;
+  border-radius: 2px;
+  -webkit-app-region: drag;
+}
+
+header button,
+header input[type="text"] {
+  top: 7px;
+  line-height: 20pt;
+  display: inline-block;
+  font-size: 8.5pt;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+  min-width: 5.5em;
+  position: relative;
+  height: 28px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  margin: 0 2.5pt;
+  /*border: 1px solid transparent;*/
+  text-align: center;
+  outline: none
+}
+header button {
+  border-radius: 2px;
+  border-color: rgba(0, 0, 0, 0.0976563);
+  background: transparent -webkit-linear-gradient(top, whiteSmoke, #f1f1f1);
+  color: #444;
+  cursor: pointer;
+  min-width: 7em;
+  float: right;
+}
