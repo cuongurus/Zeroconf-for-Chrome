@@ -1,6 +1,6 @@
 var packet = require('dns-packet');
 var socket = chrome.sockets.udp;
-var dnsTxt = require('dns-txt');
+var dnsTxt = require('dns-txt')();
 var Buffer = require('buffer').Buffer;
 
 var TLD = '.local';
@@ -9,16 +9,15 @@ var WILDCARD = '_services._dns-sd._udp' + TLD;
 /**
  * Service
  */
-var Service = function (callback) {
+var Service = function () {
     this.name = '';
     this.type = '';
     this.fqdn = '';
     this.host = '';
     this.port = '';
-    this.ipv4 = '';
-    this.ipv6 = '';
+    this.ipv4 = [];
+    this.ipv6 = [];
     this.txt = '';
-    this.callback_ = callback;
 };
 
 /**
@@ -27,14 +26,14 @@ var Service = function (callback) {
  * @param {object} opt
  */
 
-Service.prototype.serialize = function (answers, opt) {
+Service.prototype.serialize = function (answers, opt, callback) {
     var self = this;
-    if (!opt.host) callback_('Required hostname not given');
-    if (!opt.ipv4) callback_('Required ipv4 not given');
-    if (!opt.ipv6) callback_('Required ipv6 not given');
+    if (!opt.host) callback('Required hostname not given');
+    if (!opt.ipv4) callback('ipv4 not given');
+    if (!opt.ipv6) callback('ipv6 not given');
     this.host = opt.host;
-    this.ipv4 = opt.ipv4;
-    this.ipv6 = opt.ipv6;
+    this.ipv4 = opt.ipv4.slice(0);
+    this.ipv6 = opt.ipv6.slice(0);
     answers.forEach(function (ans) {
         switch (ans.type) {
             case 'PTR':
@@ -44,22 +43,12 @@ Service.prototype.serialize = function (answers, opt) {
                 break;
 
             case 'TXT':
-                var _txt = new dnsTxt();
-                self.txt = _txt.decode(ans.data);
+                self.txt = dnsTxt.decode(ans.data);
                 break;
 
             case 'SRV':
                 self.port = ans.data.port;
                 break;
-
-            case 'AAAA':
-                self.ipv6 = ans.data;
-                self.host = ans.name;
-                break;
-
-            case 'A':
-                self.ipv4 = ans.data;
-                self.host = ans.name;
         }
     });
     return self;
@@ -90,9 +79,8 @@ var Browser = function (callback, type) {
         if (error) {
             this.callback_(error);
             return true;
-        } else {
-
         }
+
         if (address.indexOf(':') != -1) {
             // TODO: ipv6.
             console.log('IPv6 address unsupported', address);
@@ -161,7 +149,7 @@ Browser.prototype.broadcast_ = function (sock, address) {
 };
 
 Browser.prototype.onReceive_ = function (info) {
-    console.debug('Received');
+    console.debug('Received from: ' + info.remoteAddress);
     var query = packet.decode(new Buffer(info.data));
     var ans = (query.answers).concat(query.additionals);
     var self = this;
@@ -194,42 +182,42 @@ Browser.prototype.onReceive_ = function (info) {
     } else {
         var i = 0;
         self.services.length = 0;
-        var k = 5;
         var opt = {
             host: '',
-            ipv4: '',
-            ipv6: ''
+            ipv4: [],
+            ipv6: []
         };
         var j = 0;
 
-        while (j < 5 && j < ans.length) {
+        while (j < ans.length) {
             switch (ans[j].type) {
                 case 'AAAA':
                     opt.host = ans[j].name;
-                    opt.ipv6 = ans[j].data;
+                    opt.ipv6.push(ans[j].data);
+                    ans.splice(j,1);
+                    j--;
                     break;
                 case 'A':
                     opt.host = ans[j].name;
-                    opt.ipv4 = ans[j].data;
+                    opt.ipv4.push(ans[j].data);
+                    ans.splice(j,1);
+                    j--;
                     break;
 
             }
             j++;
         };
 
-        if (opt.ipv4 == '' || opt.ipv6 == '') k = 4;
+        // console.debug(JSON.stringify(ans, '', 4));
 
         while (i < ans.length) {
-            if (i > 3) k = 3;
-            var rec = ans.slice(i, i + k);
-            console.debug(JSON.stringify(rec, '', 4));
-            var S = new Service(function (err) {
+            var rec = ans.slice(i, i + 3);
+            var S = new Service();
+            S.serialize(rec, opt, function (err) {
                 console.debug(err);
             });
-            // var s = 
-            S.serialize(rec, opt);
             self.services.push(S);
-            i += k;
+            i += 3;
         };
 
         self.callback_();
