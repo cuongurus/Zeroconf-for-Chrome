@@ -3328,7 +3328,7 @@ var Browser = function (callback, type) {
 
     Browser.forEachAddress_(function (address, error) {
         if (error) {
-            this.callback_(error);
+            this.callback_(error, null);
             return true;
         }
 
@@ -3341,7 +3341,7 @@ var Browser = function (callback, type) {
 
         Browser.bindToAddress_(address, function (socket) {
             if (!socket) {
-                this.callback_('could not bind UDP socket');
+                this.callback_('could not bind UDP socket', null);
                 return true;
             }
             // Broadcast on it.
@@ -3352,7 +3352,7 @@ var Browser = function (callback, type) {
     // After a short time, if our database is empty, report an error.
     setTimeout(function () {
         if (!this.found) {
-            this.callback_('no mDNS services found!');
+            this.callback_('no mDNS services found!', null);
         }
     }.bind(this), 10 * 1000);
 
@@ -3395,7 +3395,7 @@ Browser.prototype.broadcast_ = function (sock, address) {
     socket.send(sock, buf, '224.0.0.251', 5353, function (sendInfo) {
         console.debug('Send: ' + sendInfo.resultCode);
         if (sendInfo.resultCode < 0)
-            this.callback_('Could not send data to:' + address);
+            this.callback_('Could not send data to:' + address, null);
     });
 };
 
@@ -3471,12 +3471,12 @@ Browser.prototype.onReceive_ = function (info) {
             i += 3;
         };
 
-        self.callback_();
+        self.callback_(null, self.services);
     }
 };
 
 Browser.prototype.onReceiveError_ = function (info) {
-    this.callback_(info.resultCode);
+    this.callback_(info.resultCode, null);
     return true;
 };
 
