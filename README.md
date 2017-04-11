@@ -1,11 +1,28 @@
 # Zeroconf-for-Chrome
 A Zeroconf implementation in JavaScript for Chrome Apps. Publish services on the local network or discover existing services using multicast DNS.
 # Installation
-Git clone this repo:
+You can install by git clone this repo and copy javascript file "zeroconf.js" in folder "src" to your app folder:
 ```
 git clone https://github.com/cuongurus/Zeroconf-for-Chrome.git
 ```
-Copy 'src' folder to your chrome app folder and add 2 files Javascript (bundle.js, mdns.js) to your window page using script tag (<script></script>).
+This lib required these permissions:
+```json
+"sockets": {
+     "udp": { "bind": "*", "send": "*" }
+  },
+"permissions": [ "system.network" ]
+  ```
+
+You can also install with [chominit](https://www.npmjs.com/package/chrominit) tool by cd to your app folder and run:
+```
+chominit -z
+```
+This tool will automatically download "zeroconf.js" file to your app folder and add required permissions.</br>
+**Import to your window page using script tag for complete install:**
+```html
+<script src="zeroconf.js"></script>.
+```
+
 # Usage
 ```js
 // browse for all _http._tcp services
