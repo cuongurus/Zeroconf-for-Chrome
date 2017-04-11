@@ -26,10 +26,10 @@ This tool will automatically download "zeroconf.js" file to your app folder and 
 # Usage
 ```js
 // browse for all _http._tcp services
-var finder = new Browser( function(err){
-  console.log(err);
+var finder = new Browser( function(err, result){
+  if(err) console.log(err);
   
-  var out = finder.services;
+  var out = result;
   out.forEach(function(o){
   console.log('Found service: ' + JSON.stringify(o))
   })
@@ -42,7 +42,7 @@ Browser for all services with given service_type
 
 | Type | Property | Description |
 | --- | --- | --- |
-| Function | callback | called when services has been found.</br>The *callback* parameter should be a function that looks like this:</br>function (err){</br>//do something with err(error when browse)</br>var out = finder.services;</br>out.forEach(function(o){</br>//do something with service</br>}); |
+| Function | callback | called when services has been found.</br>The *callback* parameter should be a function that looks like this:</br>function (err, result){</br>//do something with err(error when browse)</br>var out = result;</br>out.forEach(function(o){</br>//do something with services found</br>}); |
 | String | service_type | Example: '_http._tcp'. List of known service_types [here](https://github.com/cuongurus/Zeroconf-for-Chrome/blob/master/test/service-types.js)</br>Let it null for browse all. |
 
 ### `finder && finder.shutdown()`
