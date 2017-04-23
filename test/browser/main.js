@@ -2,11 +2,15 @@ window.addEventListener('load', function () {
     var results = document.getElementById('results');
     var input = document.getElementById("ServiceType");
     var browseBtn = document.getElementById('browse');
-    var finder;
+    var finder = new Browser(function (err) {
+        if (err) {
+            console.warn(err)
+        }
+    })
 
-    input.onkeydown = function(ev){
-        if(ev.which == 13){
-            refresh();
+    input.onkeydown = function (ev) {
+        if (ev.which == 13) {
+            browse();
         }
     }
 
@@ -18,7 +22,7 @@ window.addEventListener('load', function () {
         }
     };
 
-    var callback_ = function (ret_err) {
+    var callback_ = function (ret_err, result) {
         results.classList.remove('working');
 
         if (ret_err) {
@@ -26,35 +30,31 @@ window.addEventListener('load', function () {
             s.classList.add('warning');
             s.innerText = ret_err;
             results.appendChild(s);
-            return console.warn(ret_err);
         }
 
-        var out = finder.services;
-        out.forEach(function (o) {
+        if(result){
             var li = document.createElement('li');
-            li.innerHTML = o.name;
-            results.appendChild(li);
+        li.innerHTML = result.name;
+        results.appendChild(li);
 
-            var ul = document.createElement('ul');
-            ul.innerHTML = "ServiceType: " + o.type + getType(o.type) + "</br>" +
-                "Hostname: " + o.host + "</br>" +
-                "Port: " + o.port + "</br>" +
-                "IPv4: " + o.ipv4 + "</br>" +
-                "IPv6: " + o.ipv6 + "</br>" +
-                "TXT: " + JSON.stringify(o.txt, '', 4);
-            results.appendChild(ul);
-        })
+        var ul = document.createElement('ul');
+        ul.innerHTML = "ServiceType: " + result.type + getType(result.type) + "</br>" +
+            "Hostname: " + result.host + "</br>" +
+            "Port: " + result.port + "</br>" +
+            "IPv4: " + result.ipv4 + "</br>" +
+            "IPv6: " + result.ipv6 + "</br>" +
+            "TXT: " + JSON.stringify(result.txt, '', 4);
+        results.appendChild(ul);
+        }
     }
 
-    var refresh = function () {
-        browseBtn.innerHTML = 'Refresh';
+    var browse = function () {
         results.innerHTML = '';
         results.classList.add('working');
-        finder && finder.shutdown();
-        finder = new Browser(callback_, input.value);
+        finder.find(callback_, input.value);
     };
 
-    browseBtn.addEventListener('click', refresh);
+    browseBtn.addEventListener('click', browse);
 
 
 });

@@ -3473,18 +3473,15 @@ Service.prototype.serialize = function (answers, opt, callback) {
 
 /**
  * Browser
- * @param {function} callback 
- * @param {string} type 
  */
 
-var Browser = function (callback, type) {
-  this.callback_ = callback;
-  this.type_ = WILDCARD;
-  if (type.length != 0) this.type_ = type + TLD;
-  this.found = false;
-  this.servTypes = [];
+var Browser = function (err) {
+  this.callback_ = err;
+  this.ServiceType = WILDCARD;
+  this.found;
+  this.TypeMap = [];
   this.socketInfo;
-  this.services = [];
+  this.bind = true;
 
   // Set up receive handlers.
   this.onReceiveListener_ = this.onReceive_.bind(this);
@@ -3492,38 +3489,32 @@ var Browser = function (callback, type) {
   this.onReceiveErrorListener_ = this.onReceiveError_.bind(this);
   socket.onReceiveError.addListener(this.onReceiveErrorListener_);
 
-
-
   Browser.bindToAddress_(function (socket) {
     if (!socket) {
-      this.callback_('could not bind UDP socket', null);
-      return true;
+      this.callback_('could not bind UDP socket');
+      this.bind = false;
     }
-    // Broadcast on it.
-    this.broadcast_(socket, address);
-  }.bind(this));
-
-
-  // After a short time, if our database is empty, report an error.
-  setTimeout(function () {
-    if (!this.found) {
-      this.callback_('no mDNS services found!', null);
-    }
-  }.bind(this), 10 * 1000);
-
-};
-
-Browser.forEachAddress_ = function (callback) {
-  chrome.system.network.getNetworkInterfaces(function (networkInterfaces) {
-    if (!networkInterfaces.length) {
-      callback(null, 'no network available!');
-      return true;
-    }
-    networkInterfaces.forEach(function (networkInterface) {
-      callback(networkInterface['address'], null);
-    });
   });
+
 };
+
+Browser.prototype.find = function (callback, type) {
+  var self = this;
+  self.callback_ = callback;
+  self.found = false;
+  if (type.length != 0) this.ServiceType = type + TLD;
+
+  if (this.bind) {
+    this.broadcast_();
+
+    // After a short time, if our database is empty, report an error.
+    setTimeout(function () {
+      if (!self.found) {
+        self.callback_('no mDNS services found!', null);
+      }
+    }, 10 * 1000);
+  }
+}
 
 Browser.bindToAddress_ = function (callback) {
   socket.create({}, function (createInfo) {
@@ -3535,7 +3526,7 @@ Browser.bindToAddress_ = function (callback) {
   });
 };
 
-Browser.prototype.broadcast_ = function (sock) {
+Browser.prototype.broadcast_ = function () {
   var self = this;
   var buf = packet.encode({
     type: 'query',
@@ -3543,11 +3534,11 @@ Browser.prototype.broadcast_ = function (sock) {
     flags: 0 << 8,
     questions: [{
       type: 'PTR',
-      name: self.type_
+      name: self.ServiceType
     }]
   }).buffer;
 
-  socket.send(sock, buf, '224.0.0.251', 5353, function (sendInfo) {
+  socket.send(socketInfo.socketId, buf, '224.0.0.251', 5353, function (sendInfo) {
     if (sendInfo.resultCode < 0)
       this.callback_('Could not send data to:' + "mDNS", null);
   });
@@ -3561,12 +3552,13 @@ Browser.prototype.onReceive_ = function (info) {
   var boo = ans[0].name == WILDCARD;
 
   if (boo) {
+    self.TypeMap.length = 0;
     var q = [];
     ans.forEach(function (answer) {
-      if (self.servTypes.indexOf(answer.data) != -1) {
+      if (self.TypeMap.indexOf(answer.data) != -1) {
         return;
       } else {
-        self.servTypes.push(answer.data);
+        self.TypeMap.push(answer.data);
         q.push({
           type: '*',
           name: answer.data
@@ -3587,7 +3579,6 @@ Browser.prototype.onReceive_ = function (info) {
 
   } else {
     var i = 0;
-    self.services.length = 0;
     var opt = {
       host: '',
       ipv4: [],
@@ -3618,13 +3609,13 @@ Browser.prototype.onReceive_ = function (info) {
       var rec = ans.slice(i, i + 3);
       var S = new Service();
       S.serialize(rec, opt, function (err) {
-        console.log(err);
+        if(err) console.log("err" + err)
       });
-      self.services.push(S);
+      self.callback_(null, S);
       i += 3;
     };
 
-    self.callback_(null, self.services);
+    
   }
 };
 
@@ -3632,6 +3623,7 @@ Browser.prototype.onReceiveError_ = function (info) {
   this.callback_(info.resultCode, null);
   return true;
 };
+
 
 Browser.prototype.shutdown = function () {
   // Remove event listeners.
