@@ -32,19 +32,19 @@ window.addEventListener('load', function () {
             results.appendChild(s);
         }
 
-        if(result){
+        if (result) {
             var li = document.createElement('li');
-        li.innerHTML = result.name;
-        results.appendChild(li);
+            li.innerHTML = result.name;
+            results.appendChild(li);
 
-        var ul = document.createElement('ul');
-        ul.innerHTML = "ServiceType: " + result.type + getType(result.type) + "</br>" +
-            "Hostname: " + result.host + "</br>" +
-            "Port: " + result.port + "</br>" +
-            "IPv4: " + result.ipv4 + "</br>" +
-            "IPv6: " + result.ipv6 + "</br>" +
-            "TXT: " + JSON.stringify(result.txt, '', 4);
-        results.appendChild(ul);
+            var ul = document.createElement('ul');
+            ul.innerHTML = "ServiceType: " + result.type + getType(result.type) + "</br>" +
+                "Hostname: " + result.host + "</br>" +
+                "Port: " + result.port + "</br>" +
+                "IPv4: " + result.ipv4 + "</br>" +
+                "IPv6: " + result.ipv6 + "</br>" +
+                "TXT: " + JSON.stringify(result.txt, '', 4);
+            results.appendChild(ul);
         }
     }
 

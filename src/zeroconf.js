@@ -3609,13 +3609,13 @@ Browser.prototype.onReceive_ = function (info) {
       var rec = ans.slice(i, i + 3);
       var S = new Service();
       S.serialize(rec, opt, function (err) {
-        if(err) console.log("err" + err)
+        if (err) console.log("err" + err)
       });
       self.callback_(null, S);
       i += 3;
     };
 
-    
+
   }
 };
 
