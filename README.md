@@ -49,7 +49,7 @@ Browser for all services with given service_type
 | Type | Property | Description |
 | --- | --- | --- |
 | Function | callback | called when a service has been found.</br>The *callback* parameter should be a function that looks like this:</br>function (string error, Service result){...};</br><table><tr><td>String</td><td>error</td><td>The error return from browsing</td></tr><tr><td>Service Object</td><td>result</td><td>The service return from browsing</td></tr></table> |
-| String | service_type | Example: '_http._tcp'. List of known service_types [here](https://github.com/cuongurus/Zeroconf-for-Chrome/blob/master/test/service-types.js)</br>Let it null for browse all. |
+| String | service_type | Example: '_http._tcp'. List of known service_types [here](https://github.com/cuongurus/Zeroconf-for-Chrome/blob/master/test/browser/service-types.js)</br>Let it null for browse all. |
 
 ## Service
 Service look like this
