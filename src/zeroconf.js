@@ -3482,6 +3482,7 @@ var Browser = function (err) {
   this.TypeMap = [];
   this.socketInfo;
   this.bind = true;
+  this.services = [];
 
   // Set up receive handlers.
   this.onReceiveListener_ = this.onReceive_.bind(this);
@@ -3502,6 +3503,8 @@ Browser.prototype.find = function (callback, type) {
   var self = this;
   self.callback_ = callback;
   self.found = false;
+  self.services.length = 0;
+  self.TypeMap.length = 0;
   if (type.length != 0) this.ServiceType = type + TLD;
 
   if (this.bind) {
@@ -3546,13 +3549,13 @@ Browser.prototype.broadcast_ = function () {
 
 Browser.prototype.onReceive_ = function (info) {
   var query = packet.decode(new Buffer(info.data));
+  console.log(JSON.stringify(query, null, 4))
   var ans = (query.answers).concat(query.additionals);
   var self = this;
   self.found = true;
   var boo = ans[0].name == WILDCARD;
 
   if (boo) {
-    self.TypeMap.length = 0;
     var q = [];
     ans.forEach(function (answer) {
       if (self.TypeMap.indexOf(answer.data) != -1) {
@@ -3611,7 +3614,12 @@ Browser.prototype.onReceive_ = function (info) {
       S.serialize(rec, opt, function (err) {
         if (err) console.log("err" + err)
       });
-      self.callback_(null, S);
+      if (self.services.indexOf(S.fqdn) != -1) {
+        return
+      } else {
+        self.services.push(S.fqdn);
+        self.callback_(null, S);
+      }
       i += 3;
     };
 
