@@ -3508,7 +3508,10 @@ Browser.prototype.find = function (callback, type) {
   if (type.length != 0) this.ServiceType = type + TLD;
 
   if (this.bind) {
-    this.broadcast_();
+    this.broadcast_([{
+      type: 'PTR',
+      name: self.ServiceType
+    }]);
 
     // After a short time, if our database is empty, report an error.
     setTimeout(function () {
@@ -3529,16 +3532,13 @@ Browser.bindToAddress_ = function (callback) {
   });
 };
 
-Browser.prototype.broadcast_ = function () {
+Browser.prototype.broadcast_ = function (question_) {
   var self = this;
   var buf = packet.encode({
     type: 'query',
     id: 0,
     flags: 0 << 8,
-    questions: [{
-      type: 'PTR',
-      name: self.ServiceType
-    }]
+    questions: question_
   }).buffer;
 
   socket.send(socketInfo.socketId, buf, '224.0.0.251', 5353, function (sendInfo) {
@@ -3569,16 +3569,7 @@ Browser.prototype.onReceive_ = function (info) {
       }
     });
 
-    var buff = packet.encode({
-      type: 'query',
-      id: 0,
-      flags: 0 << 8,
-      questions: q
-    }).buffer;
-
-    socket.send(socketInfo.socketId, buff, '224.0.0.251', 5353, function (sendInfo) {
-      //
-    });
+    self.broadcast_(q)
 
   } else {
     var i = 0;
